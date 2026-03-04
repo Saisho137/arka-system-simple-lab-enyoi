@@ -16,7 +16,6 @@ import reactor.kafka.receiver.KafkaReceiver;
 @RequiredArgsConstructor
 public class KafkaConsumer {
     private final KafkaReceiver<String, String> kafkaReceiver;
-    //private final SomeUseCase useCase;
 
     @EventListener(ApplicationStartedEvent.class)
     public Flux<Object> listenMessages() {

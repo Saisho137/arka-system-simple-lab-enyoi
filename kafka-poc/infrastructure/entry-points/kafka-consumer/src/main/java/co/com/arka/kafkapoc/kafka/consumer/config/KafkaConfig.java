@@ -2,15 +2,11 @@ package co.com.arka.kafkapoc.kafka.consumer.config;
 
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.common.config.SaslConfigs;
-import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import co.com.arka.kafkapoc.model.topiccredentials.ConsumerCredentials;
-import io.apicurio.registry.serde.SerdeConfig;
 import io.apicurio.registry.serde.jsonschema.JsonSchemaKafkaDeserializer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -25,8 +21,11 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Log4j2
 public class KafkaConfig {
+    @Value("${spring.kafka.bootstrap-servers}")
+    private String bootstrapServers;
 
-    private final ConsumerCredentials consumerCredentials;
+    @Value("${spring.kafka.consumer.group-id}")
+    private String consumerGroupId;
 
     @Bean
     ReceiverOptions<String, String> kafkaReceiverOptions(
@@ -46,43 +45,12 @@ public class KafkaConfig {
 
     public Map<String, Object> buildJaasConfig() {
         Map<String, Object> props = new HashMap<>();
-        String jaasConfig = String.format(
-            "org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required "
-            + "oauth.client.id=\"%s\" "
-            + "oauth.client.secret=\"%s\" "
-            + "oauth.token.endpoint.uri=\"%s\" "
-            + "oauth.grant.type=\"%s\";",
-            consumerCredentials.getClientId(),
-            consumerCredentials.getClientSecret(),
-            consumerCredentials.getTokenEndpointUri(),
-            consumerCredentials.getGrantType()
-        );
 
-        props.put(SaslConfigs.SASL_JAAS_CONFIG, jaasConfig);
-        props.put(SaslConfigs.SASL_MECHANISM, "OAUTHBEARER");
-        props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_SSL");
-
-        props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, "ubicacion certificado ssl");
-        props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, "sslTruststorePassword");
-        props.put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, "sslTruststoreType");
-
-        props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, "bootstrapServers");
-        props.put(SaslConfigs.SASL_LOGIN_CALLBACK_HANDLER_CLASS, "io.strimzi.kafka.oauth.client.JaasClientOauthLoginCallbackHandler");
-
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "consumerGroupId");
-
+        props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "PLAINTEXT");
+        props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupId);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonSchemaKafkaDeserializer.class);
-
-        props.put(SerdeConfig.REGISTRY_URL, "registryUrl");
-        props.put(SerdeConfig.EXPLICIT_ARTIFACT_ID, "artifactId");
-        props.put(SerdeConfig.EXPLICIT_ARTIFACT_GROUP_ID, "artifactGroupId");
-        props.put(SerdeConfig.EXPLICIT_ARTIFACT_VERSION, "artifactVersion");
-
-        props.put(SerdeConfig.AUTH_CLIENT_SECRET, consumerCredentials.getClientSecret());
-        props.put(SerdeConfig.AUTH_CLIENT_ID, consumerCredentials.getClientId());
-        props.put(SerdeConfig.AUTH_TOKEN_ENDPOINT, consumerCredentials.getTokenEndpointUri());
-        props.put(SerdeConfig.VALIDATION_ENABLED, true);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 
         return props;
     }
