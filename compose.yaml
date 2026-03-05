@@ -122,8 +122,8 @@ services:
       - .env
     volumes:
       - localstack-data:/var/lib/localstack
-      # - ./localstack/infra.yaml:/etc/localstack/init/ready.d/infra.yaml
-      # - ./localstack/bootstrap.sh:/etc/localstack/init/ready.d/bootstrap.sh
+      - ./localstack/infra.yaml:/etc/localstack/init/ready.d/infra.yaml
+      - ./localstack/bootstrap.sh:/etc/localstack/init/ready.d/bootstrap.sh
       - "/var/run/docker.sock:/var/run/docker.sock"
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:${LOCALSTACK_PORT}/_localstack/health" ]
