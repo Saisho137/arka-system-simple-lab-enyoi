@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import io.apicurio.registry.serde.jsonschema.JsonSchemaKafkaDeserializer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import reactor.kafka.receiver.KafkaReceiver;
@@ -25,14 +24,13 @@ public class KafkaConfig {
     private String bootstrapServers;
 
     @Value("${spring.kafka.consumer.group-id}")
-    private String consumerGroupId;
+    private String groupId;
 
     @Bean
     ReceiverOptions<String, String> kafkaReceiverOptions(
             @Value(value = "${adapters.kafka.consumer.topic}") String topic) {
 
-        ReceiverOptions<String, String> basicReceiverOptions =
-                ReceiverOptions.create(buildJaasConfig());
+        ReceiverOptions<String, String> basicReceiverOptions = ReceiverOptions.create(buildJaasConfig());
 
         return basicReceiverOptions.subscription(Collections.singletonList(topic));
     }
@@ -48,7 +46,8 @@ public class KafkaConfig {
 
         props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "PLAINTEXT");
         props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupId);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 

@@ -26,9 +26,7 @@ public class KafkaConsumer {
                         Schedulers.DEFAULT_BOUNDED_ELASTIC_QUEUESIZE,
                         "kafka"))
                 .flatMap(receiverRecord -> {
-                    // map record and process
-                    // return useCase.something(receiverRecord.value())
-                    log.info("Record received {}", receiverRecord.value());
+                    log.info("EMA: Record received {}", receiverRecord.value());
                     receiverRecord.receiverOffset().acknowledge();
                     return Mono.empty();
                 })

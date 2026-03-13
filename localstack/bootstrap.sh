@@ -20,6 +20,9 @@ MS_ORDERS_URL="http://$MS_ORDERS_HOST:$MS_ORDERS_PORT"
 
 echo "Desplegando stack CloudFormation: $STACK_NAME"
 
+# aws s3 ls --endpoint-url http://localhost:4566
+
+
 # Desplegar (o actualizar) el stack con variables de entorno
 awslocal cloudformation deploy \
   --stack-name "$STACK_NAME" \

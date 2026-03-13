@@ -18,8 +18,7 @@ public class KafkaTestHandler {
                 .flatMap(req -> publishEventUseCase.publish(req.message()))
                 .flatMap(event -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
-                        .bodyValue(event)
-                );
+                        .bodyValue(event));
     }
 
     public record PublishRequest(String message) {

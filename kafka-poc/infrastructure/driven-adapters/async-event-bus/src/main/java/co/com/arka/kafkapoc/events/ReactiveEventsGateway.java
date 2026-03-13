@@ -1,12 +1,13 @@
 package co.com.arka.kafkapoc.events;
 
+import co.com.arka.kafkapoc.model.events.TestEvent;
 import co.com.arka.kafkapoc.model.events.gateways.EventsGateway;
-import co.com.arka.kafkapoc.model.events.gateways.TestEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.reactivecommons.api.domain.DomainEventBus;
 import org.reactivecommons.async.impl.config.annotations.EnableDomainEventBus;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import reactor.core.publisher.Mono;
 import io.cloudevents.CloudEvent;
 import io.cloudevents.core.builder.CloudEventBuilder;
@@ -20,18 +21,19 @@ import java.util.logging.Level;
 
 import static reactor.core.publisher.Mono.from;
 
+@Configuration
 @Log
 @RequiredArgsConstructor
 @EnableDomainEventBus
 public class ReactiveEventsGateway implements EventsGateway {
     @Value("${adapters.kafka.producer.topic}")
-    public String topicName;
+    private String topicName;
     private final DomainEventBus domainEventBus;
     private final ObjectMapper om;
 
     @Override
     public Mono<Void> emit(TestEvent event) {
-        log.log(Level.INFO, "Sending domain event: {0}: {1}", new String[]{topicName, event.toString()});
+        log.log(Level.INFO, "EMA: Sending domain event: {0}: {1}", new String[] { topicName, event.toString() });
         CloudEvent eventCloudEvent = CloudEventBuilder.v1()
                 .withId(UUID.randomUUID().toString())
                 .withSource(URI.create("https://reactive-commons.org/foos"))
@@ -40,6 +42,6 @@ public class ReactiveEventsGateway implements EventsGateway {
                 .withData("application/json", JsonCloudEventData.wrap(om.valueToTree(event)))
                 .build();
 
-         return from(domainEventBus.emit(eventCloudEvent));
+        return from(domainEventBus.emit(eventCloudEvent));
     }
 }

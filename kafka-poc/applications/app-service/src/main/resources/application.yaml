@@ -25,7 +25,8 @@ management:
       probes:
         enabled: true
 cors:
-  allowed-origins: "http://localhost:4200,http://localhost:8080"
+  allowed-origins: "*"
+
 adapters:
   kafka:
     consumer:
@@ -35,6 +36,6 @@ adapters:
 reactive:
   commons:
     kafka:
-      app:
-        connectionProperties:
+      app: # this is the name of the default domain
+        connectionProperties: # you can override the connection properties of each domain
           bootstrap-servers: "localhost:9092"
